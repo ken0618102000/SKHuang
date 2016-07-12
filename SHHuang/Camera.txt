@@ -1,0 +1,27 @@
+l_u0                                 165.519
+l_v0                                 120.979
+l_fu                                 363.058
+l_fv                                 357.923
+l_coefficient[0]                                -0.14458
+l_coefficient[1]                                0.298004
+l_coefficient[2]                             5.17398e-05
+l_coefficient[3]                              -0.0038642
+l_coefficient[4]                                 1.47147
+l_coefficient[5]                                -2.59096
+l_coefficient[6]                            -0.000103674
+l_coefficient[7]                             -0.00643217
+
+r_u0                                 150.489
+r_v0                                 114.929
+r_fu                                  355.38
+r_fv                                 349.893
+r_coefficient[0]                               -0.034684
+r_coefficient[1]                               -0.182686
+r_coefficient[2]                             0.000860488
+r_coefficient[3]                              0.00599919
+r_coefficient[4]                              -0.0971545
+r_coefficient[5]                               0.0416781
+r_coefficient[6]                             -0.00165142
+r_coefficient[7]                              -0.0144576
+
+L                                0.182123
