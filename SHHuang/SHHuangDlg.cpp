@@ -777,7 +777,7 @@ UINT SHHuangDlg::ThreadFun_TARGET_control(LPVOID lParam)
 
 		if (jump_path_optimization_copy.size() < 3)
 		{
-			float goal = atan2((jump_path_optimization_copy[1].y - jump_path_optimization_copy[2].y), (jump_path_optimization_copy[2].x - jump_path_optimization_copy[1].x));
+			float goal = atan2((jump_path_optimization_copy[0].y - jump_path_optimization_copy[1].y), (jump_path_optimization_copy[1].x - jump_path_optimization_copy[0].x));
 			target_pos[2] = goal;  //旋轉角
 		}
 		else
@@ -947,6 +947,7 @@ UINT SHHuangDlg::ThreadFun_TARGET_control(LPVOID lParam)
 		int initial_scale = 100;
 		IplImage * draw_data = NULL;
 		draw_data = cvCreateImage(cvSize(700, 700), IPL_DEPTH_8U, 3);
+		cvSetZero(draw_data);
 		CvPoint draw_oringin[2];
 
 		draw_oringin[0] = cvPoint(orgin.x, orgin.y);
@@ -955,8 +956,18 @@ UINT SHHuangDlg::ThreadFun_TARGET_control(LPVOID lParam)
 		for (int path_num = 0; path_num < jump_path_optimization_copy.size(); path_num++)
 		{
 			double target_pos_sim[3] = { 0 }, car_x_sim, car_y_sim, car_zdir_sim, phi_sim, rho_sim, theta_sim, alpha_sim, beta_sim;
-			float goal_sim = atan2((jump_path_optimization_copy[1].y - jump_path_optimization_copy[2].y), (jump_path_optimization_copy[2].x - jump_path_optimization_copy[1].x));
-			target_pos_sim[2] = goal_sim;  //旋轉角
+			jump_draw = 0;
+
+			if (jump_path_optimization_copy.size() < 3)
+			{
+				float goal_sim = atan2((jump_path_optimization_copy[0].y - jump_path_optimization_copy[1].y), (jump_path_optimization_copy[1].x - jump_path_optimization_copy[0].x));
+				target_pos_sim[2] = goal_sim;  //旋轉角
+			}
+			else
+			{
+				float goal_sim = atan2((jump_path_optimization_copy[1].y - jump_path_optimization_copy[2].y), (jump_path_optimization_copy[2].x - jump_path_optimization_copy[1].x));
+				target_pos_sim[2] = goal_sim;  //旋轉角
+			}
 
 			if (!Path.empty())
 			{
@@ -1048,7 +1059,7 @@ UINT SHHuangDlg::ThreadFun_TARGET_control(LPVOID lParam)
 					cvLine(draw_data, draw_car_temp.car[2], draw_car_temp.car[3], CV_RGB(0, 255, 0), 2);
 					cvLine(draw_data, draw_car_temp.car[3], draw_car_temp.car[0], CV_RGB(0, 255, 0), 2);
 					cvLine(draw_data, draw_car_temp.car[4], draw_car_temp.car[5], CV_RGB(255, 0, 0), 2);
-					cvLine(draw_data, draw_oringin[0], draw_oringin[1], CV_RGB(255, 100, 255), 2);
+//					cvLine(draw_data, draw_oringin[0], draw_oringin[1], CV_RGB(255, 100, 255), 2);
 
 				}
 
@@ -1073,7 +1084,7 @@ UINT SHHuangDlg::ThreadFun_TARGET_control(LPVOID lParam)
 
 		cvShowImage("draw_data", draw_data); // 顯示影像於視窗
 		cvWaitKey(30); // 停留視窗
-
+		cvReleaseImage(&draw_data);
 		Sleep(sampleTime);
 
 		QueryPerformanceCounter(&tEnd);
