@@ -1,7 +1,7 @@
 //20151118·s¼W
 #include "P3PSolver.h"
 #include <fstream>
-#define PI 3.1415926
+#define CV_PI 3.1415926
 
 class World_Coordinates
 {

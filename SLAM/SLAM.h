@@ -13,7 +13,7 @@
 //#include "..//p3p//P3PSolver.h"
 //#include <fstream>	//移到RANSAC.h裡面
 #include <iomanip>
-//#define PI 3.1415926	//移到RANSAC.h裡面
+//#define CV_PI 3.1415926	//移到RANSAC.h裡面
 
 #ifndef _SLAM_h_
 #define _SLAM_h_

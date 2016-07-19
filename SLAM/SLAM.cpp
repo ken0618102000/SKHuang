@@ -556,17 +556,17 @@ void SLAM::Comparison_Feature(vector<SingleFeature>&l_feature, vector<SingleFeat
 
 				//有轉置，Y跟Z角度會相反
 				//temppos.z_dir = asin(-ransac_match[0].Rs[0][2]);
-				//temppos.x_dir = atan2(ransac_match[0].Rs[1][2],ransac_match[0].Rs[2][2])-90*PI/180;
+				//temppos.x_dir = atan2(ransac_match[0].Rs[1][2],ransac_match[0].Rs[2][2])-90*CV_PI/180;
 				//temppos.y_dir = atan2(ransac_match[0].Rs[0][1],ransac_match[0].Rs[0][0]);
 
 				//20151118改
 				//temppos.y_dir = asin(-ransac_match[0].Rs[2][0]);
-				//temppos.x_dir = atan2(ransac_match[0].Rs[2][1], ransac_match[0].Rs[2][2]) + 90 * PI / 180;
+				//temppos.x_dir = atan2(ransac_match[0].Rs[2][1], ransac_match[0].Rs[2][2]) + 90 * CV_PI / 180;
 				//temppos.z_dir = atan2(ransac_match[0].Rs[1][0], ransac_match[0].Rs[0][0]);
 
 //----------------------------------------------------------------------------------------------------相對於原點的角度
 				//20151127
-// 				if (-ransac_match[0].Rs[2][0] < PI / 2)
+// 				if (-ransac_match[0].Rs[2][0] < CV_PI / 2)
 // 					temppos.z_dir = -asin(-ransac_match[0].Rs[2][0]) ;
 // 				else
 // 					temppos.z_dir = -asin(-ransac_match[0].Rs[2][0]);
@@ -587,19 +587,19 @@ void SLAM::Comparison_Feature(vector<SingleFeature>&l_feature, vector<SingleFeat
 // 					if (fabs(temppos.z_dir - p3dxpos[p3dxpos.size() - 1].z_dir) > 0.035)
 // 					{
 // 						if (temppos.z_dir > 0)
-// 							temppos.z_dir = PI - temppos.z_dir;
+// 							temppos.z_dir = CV_PI - temppos.z_dir;
 // 						else
-// 							temppos.z_dir = -PI - temppos.z_dir;
+// 							temppos.z_dir = -CV_PI - temppos.z_dir;
 // 
 // 						if (temppos.x_dir > 0)
-// 							temppos.x_dir = -PI + temppos.x_dir;
+// 							temppos.x_dir = -CV_PI + temppos.x_dir;
 // 						else
-// 							temppos.x_dir = PI + temppos.x_dir;
+// 							temppos.x_dir = CV_PI + temppos.x_dir;
 // 
 // 						if (temppos.y_dir > 0)
-// 							temppos.y_dir = -PI + temppos.y_dir;
+// 							temppos.y_dir = -CV_PI + temppos.y_dir;
 // 						else
-// 							temppos.y_dir = PI + temppos.y_dir;
+// 							temppos.y_dir = CV_PI + temppos.y_dir;
 // 					}
  				}
 
@@ -680,15 +680,15 @@ void SLAM::Comparison_Feature(vector<SingleFeature>&l_feature, vector<SingleFeat
 				// 				app_p3dxpos << p3dxpos[p3dxpos.size() - 1].x << "   " 
 				// 									<< p3dxpos[p3dxpos.size() - 1].y << "   " 
 				// 									<< p3dxpos[p3dxpos.size() - 1].z << "   ";
-				// 				app_p3dxpos << p3dxpos[p3dxpos.size() - 1].x_dir * 180 / PI << "   " 
-				// 									<< p3dxpos[p3dxpos.size() - 1].y_dir * 180 / PI << "   " 
-				// 									<< p3dxpos[p3dxpos.size() - 1].z_dir * 180 / PI << endl;
+				// 				app_p3dxpos << p3dxpos[p3dxpos.size() - 1].x_dir * 180 / CV_PI << "   " 
+				// 									<< p3dxpos[p3dxpos.size() - 1].y_dir * 180 / CV_PI << "   " 
+				// 									<< p3dxpos[p3dxpos.size() - 1].z_dir * 180 / CV_PI << endl;
 				// 				app_p3dxpos << p3dx_x.x << "   " 
 				// 									<< p3dx_x.y << "   " 
 				// 									<< p3dx_x.z << "   ";
-				// 				app_p3dxpos << p3dx_x.x_dir * 180 / PI << "   " 
-				// 									<< p3dx_x.y_dir * 180 / PI << "   " 
-				// 									<< p3dx_x.z_dir * 180 / PI << endl << endl;
+				// 				app_p3dxpos << p3dx_x.x_dir * 180 / CV_PI << "   " 
+				// 									<< p3dx_x.y_dir * 180 / CV_PI << "   " 
+				// 									<< p3dx_x.z_dir * 180 / CV_PI << endl << endl;
 
 
 			}
@@ -1080,7 +1080,7 @@ void SLAM::Comparison_Feature_original_descriptor(vector<PairFeature> &pair_feat
 					double gxR = (map_feature[i].r_ix - r_u0) / r_fu;
 
 					double k = (cvmGet(R_matrix, 0, 0) - cvmGet(R_matrix, 2, 0)*gxR)*gxL + (cvmGet(R_matrix, 0, 1) - cvmGet(R_matrix, 2, 1)*gxR)*gyL + (cvmGet(R_matrix, 0, 2) - cvmGet(R_matrix, 2, 2)*gxR);
-					map_feature[i].hz = (cvmGet(T_matrix, 0, 2)*gxR - cvmGet(T_matrix, 0, 0)) / (k * 1000);
+					map_feature[i].hz = (cvmGet(T_matrix, 2, 0)*gxR - cvmGet(T_matrix, 0, 0)) / (k * 1000);
 					map_feature[i].hx = map_feature[i].hz*gxL;
 					map_feature[i].hy = map_feature[i].hz*gyL;
 
@@ -1592,7 +1592,7 @@ void SLAM::Save_Feature(vector<PairFeature>&pair_feature)
 						double gxR = (temp.r_ix - r_u0) / r_fu;
 
 						double k = (cvmGet(R_matrix, 0, 0) - cvmGet(R_matrix, 2, 0)*gxR)*gxL + (cvmGet(R_matrix, 0, 1) - cvmGet(R_matrix, 2, 1)*gxR)*gyL + (cvmGet(R_matrix, 0, 2) - cvmGet(R_matrix, 2, 2)*gxR);
-						temp.hz = (cvmGet(T_matrix, 0, 2)*gxR - cvmGet(T_matrix, 0, 0)) / (k * 1000);
+						temp.hz = (cvmGet(T_matrix, 2, 0)*gxR - cvmGet(T_matrix, 0, 0)) / (k * 1000);
 						temp.hx = temp.hz*gxL;
 						temp.hy = temp.hz*gyL;
 
@@ -2022,9 +2022,9 @@ void SLAM::R_RANSAC(void)
 	// {
 	//	 app_x<<ransac_match[u].match_set.size()<<"    ";
 	//	 app_x<<ransac_match[u].X[0]<<"   "<<ransac_match[u].X[1]<<"    "<<ransac_match[u].X[2]<<"    ";
-	//	 app_x<<atan2(ransac_match[u].Rs[2][1],ransac_match[u].Rs[2][2])*180/PI-90<<"    ";
-	//	 app_x<<atan2(ransac_match[u].Rs[1][0],ransac_match[u].Rs[0][0])*180/PI<<"    ";
-	//	 app_x<<asin(-ransac_match[u].Rs[2][0])*180/PI<<endl;
+	//	 app_x<<atan2(ransac_match[u].Rs[2][1],ransac_match[u].Rs[2][2])*180/CV_PI-90<<"    ";
+	//	 app_x<<atan2(ransac_match[u].Rs[1][0],ransac_match[u].Rs[0][0])*180/CV_PI<<"    ";
+	//	 app_x<<asin(-ransac_match[u].Rs[2][0])*180/CV_PI<<endl;
 	// }
 	//}
 	//else app_x<<endl;

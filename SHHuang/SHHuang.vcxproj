@@ -93,6 +93,10 @@
       <EnableCOMDATFolding />
       <LinkTimeCodeGeneration />
       <TargetMachine>MachineX86</TargetMachine>
+      <HeapReserveSize>
+      </HeapReserveSize>
+      <StackReserveSize>
+      </StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -102,7 +106,7 @@
       <ValidateAllParameters>true</ValidateAllParameters>
     </Midl>
     <ClCompile>
-      <Optimization>Disabled</Optimization>
+      <Optimization>Full</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
@@ -124,10 +128,14 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <HeapReserveSize>20000000</HeapReserveSize>
-      <HeapCommitSize>20000000</HeapCommitSize>
-      <StackReserveSize>20000000</StackReserveSize>
-      <StackCommitSize>20000000</StackCommitSize>
+      <HeapReserveSize>
+      </HeapReserveSize>
+      <HeapCommitSize>
+      </HeapCommitSize>
+      <StackReserveSize>
+      </StackReserveSize>
+      <StackCommitSize>
+      </StackCommitSize>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
   </ItemDefinitionGroup>
