@@ -944,13 +944,15 @@ UINT SHHuangDlg::ThreadFun_TARGET_control(LPVOID lParam)
 		double rho_dot, alpha_dot, beta_dot;
 		double x_here, y_here, zdir_here = 0, theta_here;
 		double u1, u2;
+		double target_pos_sim[3] = { 0 }, car_x_sim, car_y_sim, car_zdir_sim, phi_sim, rho_sim, theta_sim, alpha_sim, beta_sim;
+		CPoint erase_path = { 0 };
 		vector <double> x_save, y_save;
 		int jump_draw = 0;
 		//CvPoint draw_car[6];
 		int carsize = 20;
 		int initial_scale = 100;
 		IplImage * draw_data = NULL;
-		draw_data = cvCreateImage(cvSize(700, 700), IPL_DEPTH_8U, 3);
+		draw_data = cvCreateImage(cvSize(1440, 900), IPL_DEPTH_8U, 3);
 		cvSetZero(draw_data);
 		CvPoint draw_oringin[2];
 
@@ -960,12 +962,14 @@ UINT SHHuangDlg::ThreadFun_TARGET_control(LPVOID lParam)
 		vector <CPoint>  jump_path_optimization_copy_sim;
 		jump_path_optimization_copy_sim.assign(jump_path_optimization_copy.begin(), jump_path_optimization_copy.end());
 
-		for (int path_num = 0; path_num < jump_path_optimization_copy_sim.size(); path_num++)
+		for (int path_num = 0; path_num < jump_path_optimization_copy_sim.size() + 10; path_num++)
 		{
-			double target_pos_sim[3] = { 0 }, car_x_sim, car_y_sim, car_zdir_sim, phi_sim, rho_sim, theta_sim, alpha_sim, beta_sim;
+
 			jump_draw = 0;
 
-			if (jump_path_optimization_copy_sim.size() < 3)
+			if (jump_path_optimization_copy_sim.size() < 2)
+				break;
+			else if (jump_path_optimization_copy_sim.size() < 3)
 			{
 				float goal_sim = atan2((jump_path_optimization_copy_sim[0].y - jump_path_optimization_copy_sim[1].y), (jump_path_optimization_copy_sim[1].x - jump_path_optimization_copy_sim[0].x));
 				target_pos_sim[2] = goal_sim;  //旋轉角
@@ -977,35 +981,52 @@ UINT SHHuangDlg::ThreadFun_TARGET_control(LPVOID lParam)
 				
 			}
 
-			if (!Path.empty())
-			{
-				double start_pointx_sim = jump_path_optimization_copy_sim[0].x;
-				double start_pointy_sim = jump_path_optimization_copy_sim[0].y;
 
-				car_x_sim = start_pointx_sim - jump_path_optimization_copy_sim[1].x  /*+ (double)rand() / (RAND_MAX + 1.0) * 4*/;
-				car_y_sim = jump_path_optimization_copy_sim[1].y - start_pointy_sim  /*+ (double)rand() / (RAND_MAX + 1.0) * 4*/;
-				car_zdir_sim = CPSocket::m_pose_data_2.pose_orientation[2] + CV_PI / 2 /*+ (double)rand() / (RAND_MAX + 1.0) * 6*/;
+			if (path_num > 0)
+			{
+				car_x_sim = x_here / pixel2cm * 100;
+				car_y_sim = y_here / pixel2cm * 100;
+				car_zdir_sim = zdir_here;
+				target_pos_sim[0] = jump_path_optimization_copy_sim[1].x - jump_path_optimization_copy_sim[0].x + erase_path.x;
+				target_pos_sim[1] = jump_path_optimization_copy_sim[0].y - jump_path_optimization_copy_sim[1].y + erase_path.y;
+
+				erase_path.x = target_pos_sim[0] + erase_path.x;
+				erase_path.y = target_pos_sim[1] + erase_path.y;
 			}
 			else
 			{
-				double start_pointx_sim = jump_path_optimization_copy_sim[0].x;
-				double start_pointy_sim = jump_path_optimization_copy_sim[0].y;
+				if (!Path.empty())
+				{
+					double start_pointx_sim = jump_path_optimization_copy_sim[0].x;
+					double start_pointy_sim = jump_path_optimization_copy_sim[0].y;
 
-				car_x_sim = start_pointx_sim - jump_path_optimization_copy_sim[1].x  /*+ (double)rand() / (RAND_MAX + 1.0) * 4*/;
-				car_y_sim = jump_path_optimization_copy_sim[1].y - start_pointy_sim   /*+ (double)rand() / (RAND_MAX + 1.0) * 4*/;
-				car_zdir_sim = CPSocket::m_pose_data_2.pose_orientation[2] + CV_PI / 2 /*+ (double)rand() / (RAND_MAX + 1.0) * 6*/;
+					car_x_sim = start_pointx_sim - jump_path_optimization_copy_sim[1].x  /*+ (double)rand() / (RAND_MAX + 1.0) * 4*/;
+					car_y_sim = jump_path_optimization_copy_sim[1].y - start_pointy_sim  /*+ (double)rand() / (RAND_MAX + 1.0) * 4*/;
+					car_zdir_sim = CPSocket::m_pose_data_2.pose_orientation[2] + CV_PI / 2 /*+ (double)rand() / (RAND_MAX + 1.0) * 6*/;
+				}
+				else
+				{
+					double start_pointx_sim = jump_path_optimization_copy_sim[0].x;
+					double start_pointy_sim = jump_path_optimization_copy_sim[0].y;
+
+					// 				target_pos_sim[0] = jump_path_optimization_copy_sim[1].x;
+					// 				target_pos_sim[1] = jump_path_optimization_copy_sim[1].y;
+
+					car_x_sim = start_pointx_sim - jump_path_optimization_copy_sim[1].x  /*+ (double)rand() / (RAND_MAX + 1.0) * 4*/;
+					car_y_sim = -start_pointy_sim + jump_path_optimization_copy_sim[1].y /*+ (double)rand() / (RAND_MAX + 1.0) * 4*/;
+					car_zdir_sim = CPSocket::m_pose_data_2.pose_orientation[2] + CV_PI / 2 /*+ (double)rand() / (RAND_MAX + 1.0) * 6*/;
+				}
 			}
 
-			
 
 			phi_sim = car_zdir_sim;
 			if (phi_sim > CV_PI)		phi_sim = -2 * CV_PI + phi_sim;
 			if (phi_sim < -CV_PI)		phi_sim = 2 * CV_PI + phi_sim;
 
 			rho_sim = sqrt((car_x_sim - target_pos_sim[0])*(car_x_sim - target_pos_sim[0]) + (car_y_sim - target_pos_sim[1])*(car_y_sim - target_pos_sim[1])) *pixel2cm / 100;
-			theta_sim = atan2(car_y_sim *pixel2cm - target_pos_sim[1], car_x_sim*pixel2cm - target_pos_sim[0]);
+			theta_sim = atan2(car_y_sim - target_pos_sim[1], car_x_sim - target_pos_sim[0]);
 
-			alpha_sim = -phi + theta_sim + CV_PI;
+			alpha_sim = -phi_sim + theta_sim + CV_PI;
 			if (alpha_sim > CV_PI)		alpha_sim = -2 * CV_PI + alpha_sim;
 			if (alpha_sim < -CV_PI)		alpha_sim = 2 * CV_PI + alpha_sim;
 
@@ -1041,15 +1062,14 @@ UINT SHHuangDlg::ThreadFun_TARGET_control(LPVOID lParam)
 				if (theta_here > CV_PI)		theta_here = -2 * CV_PI + theta_here;
 				if (theta_here < -CV_PI)		theta_here = 2 * CV_PI + theta_here;
 
+				float here_scale = 100;
 
-				x_here = cos(theta_here) * rho_sim + target_pos_sim[0];
-				y_here = sin(theta_here) * rho_sim + target_pos_sim[1];
+				x_here = cos(theta_here) * rho_sim + target_pos_sim[0] * pixel2cm / 100;
+				y_here = sin(theta_here) * rho_sim + target_pos_sim[1] * pixel2cm / 100;
 				zdir_here = -beta_sim - alpha_sim + target_pos_sim[2];  //加入 target_pos_sim[2]
 				jump_draw++;
-				x_save.push_back(x_here* initial_scale + orgin.x);
-				y_save.push_back(700 - (y_here * initial_scale + orgin.y));
-
-				float here_scale = initial_scale;
+				x_save.push_back(x_here* here_scale + orgin.x);
+				y_save.push_back(700 - (y_here * here_scale + orgin.y));
 
 				draw_car draw_car_temp;
 
@@ -1075,7 +1095,7 @@ UINT SHHuangDlg::ThreadFun_TARGET_control(LPVOID lParam)
 
 
 
-				if ((abs(x_here - target_pos_sim[0]) < 0.02  && abs(y_here - target_pos_sim[1]) < 0.02) || jump_draw > 600 /*|| zdir_here < 0.2*/)
+				if ((abs(x_here - target_pos_sim[0] * pixel2cm / 100) < 0.02  && abs(y_here - target_pos_sim[1] * pixel2cm / 100) < 0.02) || jump_draw > 600 /*|| zdir_here < 0.2*/)
 				{			
 					jump_path_optimization_copy_sim.erase(jump_path_optimization_copy_sim.begin(), jump_path_optimization_copy_sim.begin() + 1);
 					break;
@@ -1094,7 +1114,7 @@ UINT SHHuangDlg::ThreadFun_TARGET_control(LPVOID lParam)
 		}
 
 		//-----------------------------模擬數據-----------------------------------------------------------------
-
+//		cvNamedWindow("draw_data", CV_WND_PROP_AUTOSIZE);
 		cvShowImage("draw_data", draw_data); // 顯示影像於視窗
 		cvWaitKey(30); // 停留視窗
 		cvReleaseImage(&draw_data);
