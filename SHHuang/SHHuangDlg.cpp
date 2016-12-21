@@ -614,7 +614,7 @@ UINT SHHuangDlg::ThreadFun_car_draw(LPVOID lParam)
 				feature_path_temp.clear();
 			}
 
-			for (k = feature_path.size() - 15; k < feature_path.size(); k++)  //畫特徵點軌跡
+			for (k = feature_path.size() - 1; k < feature_path.size(); k++)  //畫特徵點軌跡
 			{
 				for (j = 0; j < feature_path[k].size(); j++)
 				{
@@ -623,7 +623,7 @@ UINT SHHuangDlg::ThreadFun_car_draw(LPVOID lParam)
 
 					if (k == feature_path.size() - 1)
 					{
-						float hessian_temp = feature_path[feature_path.size() - 1][j].hessian;
+						float hessian_temp = feature_path[feature_path.size() - 1][j].hessian;;
 						if (hessian_min > hessian_temp)
 							hessian_min = hessian_temp;
 
@@ -637,17 +637,17 @@ UINT SHHuangDlg::ThreadFun_car_draw(LPVOID lParam)
 							cvPutText(draw_data, xx, cvPoint(P1X + 5, P1Y - 5), &Font2, CV_RGB(200, 255, 255));
 						}
 					}
-
-					if (!feature_path[k][j].appear || feature_path[k][j].X == 0 || feature_path[k - 1][j].X == 0 || feature_path[k - 1][j].Y == 0 || feature_path[k][j].Y == 0 || !feature_path[k][j].match)
-						continue;
-
-
-					if (feature_path[k][j].num == feature_path[k - 1][j].num)
-					{
-						P2X = cvRound(orgin.x + feature_path[k - 1][j].X * scale + map_move[0]);
-						P2Y = cvRound(orgin.y - feature_path[k - 1][j].Y * scale + map_move[1]);
-						cvLine(draw_data, cvPoint(P2X, P2Y), cvPoint(P1X, P1Y), CV_RGB(150, 150, 255), 1);
-					}
+// 
+// 					if (!feature_path[k][j].appear || feature_path[k][j].X == 0 || feature_path[k - 1][j].X == 0 || feature_path[k - 1][j].Y == 0 || feature_path[k][j].Y == 0 || !feature_path[k][j].match)
+// 						continue;
+// 
+// 
+// 					if (feature_path[k][j].num == feature_path[k - 1][j].num)
+// 					{
+// 						P2X = cvRound(orgin.x + feature_path[k - 1][j].X * scale + map_move[0]);
+// 						P2Y = cvRound(orgin.y - feature_path[k - 1][j].Y * scale + map_move[1]);
+// 						cvLine(draw_data, cvPoint(P2X, P2Y), cvPoint(P1X, P1Y), CV_RGB(150, 150, 255), 1);
+// 					}
 				}
 			}
 		}
@@ -770,9 +770,11 @@ UINT SHHuangDlg::ThreadFun_TARGET_control(LPVOID lParam)
 	remove("control_output.txt");
 	remove("control_output_m.txt");
 	remove("control_pos_m.txt");
+
 	fstream app_control("control_output.txt", ios::app);
 	fstream app_control_m("control_output_m.txt", ios::app); //為了給matlab畫圖用的
 	fstream app_pos_m("control_pos_m.txt", ios::app);
+
 
 	while (stop_everthing && !jump_path_optimization_copy.empty())
 	{
@@ -799,7 +801,7 @@ UINT SHHuangDlg::ThreadFun_TARGET_control(LPVOID lParam)
 
 			car_x = start_pointx - jump_path_optimization_copy[1].x  /*+ (double)rand() / (RAND_MAX + 1.0) * 4*/;
 			car_y = jump_path_optimization_copy[1].y - start_pointy  /*+ (double)rand() / (RAND_MAX + 1.0) * 4*/;
-			car_zdir = Camera[5] + CV_PI / 2 /*+ (double)rand() / (RAND_MAX + 1.0) * 6*/;
+			car_zdir = Camera[5] + CV_PI / 2/*+ (double)rand() / (RAND_MAX + 1.0) * 6*/;  
 		}
 		else
 		{
@@ -808,20 +810,21 @@ UINT SHHuangDlg::ThreadFun_TARGET_control(LPVOID lParam)
 
 			car_x = start_pointx - jump_path_optimization_copy[1].x  /*+ (double)rand() / (RAND_MAX + 1.0) * 4*/;
 			car_y = jump_path_optimization_copy[1].y - start_pointy   /*+ (double)rand() / (RAND_MAX + 1.0) * 4*/;
-			car_zdir = CPSocket::m_pose_data_2.pose_orientation[2] + CV_PI / 2 /*+ (double)rand() / (RAND_MAX + 1.0) * 6*/;
+			car_zdir = Camera[5] + CV_PI / 2 /*+ (double)rand() / (RAND_MAX + 1.0) * 6*/; 
 		}
 
 		// 		car_x = CPSocket::m_pose_data_2.pose_position[0] - jump_path_optimization_copy[1].x /*+ (double)rand() / (RAND_MAX + 1.0) * 4*/;
 		// 		car_y = CPSocket::m_pose_data_2.pose_position[1] - jump_path_optimization_copy[1].y /*+ (double)rand() / (RAND_MAX + 1.0) * 4*/;
 		// 		car_zdir = CPSocket::m_pose_data_2.pose_orientation[2] + CV_PI / 2 /*+ (double)rand() / (RAND_MAX + 1.0) * 6*/;
-
+		car_x = car_x*pixel2cm / 100;
+		car_y = car_y*pixel2cm / 100;
 
 		phi = car_zdir;
 		if (phi > CV_PI)		phi = -2 * CV_PI + phi;
 		if (phi < -CV_PI)		phi = 2 * CV_PI + phi;
 
-		rho = sqrt((car_x - target_pos[0])*(car_x - target_pos[0]) + (car_y - target_pos[1])*(car_y - target_pos[1])) *pixel2cm / 100;
-		theta = atan2(car_y *pixel2cm - target_pos[1], car_x*pixel2cm - target_pos[0]);
+		rho = sqrt((car_x - target_pos[0])*(car_x - target_pos[0]) + (car_y - target_pos[1])*(car_y - target_pos[1]));
+		theta = atan2(car_y - target_pos[1], car_x - target_pos[0]);
 
 
 		alpha = -phi + theta + CV_PI;
@@ -929,6 +932,7 @@ UINT SHHuangDlg::ThreadFun_TARGET_control(LPVOID lParam)
 		str_Value8.Format(_T("%0.2f"), vl);
 		Static_num8->SetWindowText(str_Value8);
 
+
 		cout.flags(ios::left);
 
 		// 		app_control
@@ -955,6 +959,9 @@ UINT SHHuangDlg::ThreadFun_TARGET_control(LPVOID lParam)
 		draw_data = cvCreateImage(cvSize(1440, 900), IPL_DEPTH_8U, 3);
 		cvSetZero(draw_data);
 		CvPoint draw_oringin[2];
+
+		remove("control_pos_m_sim.txt");
+		fstream app_pos_m_sim("control_pos_m_sim.txt", ios::app);
 
 		draw_oringin[0] = cvPoint(orgin.x, orgin.y);
 		draw_oringin[1] = cvPoint(orgin.x, 700 - orgin.y);
@@ -990,32 +997,17 @@ UINT SHHuangDlg::ThreadFun_TARGET_control(LPVOID lParam)
 				target_pos_sim[0] = jump_path_optimization_copy_sim[1].x - jump_path_optimization_copy_sim[0].x + erase_path.x;
 				target_pos_sim[1] = jump_path_optimization_copy_sim[0].y - jump_path_optimization_copy_sim[1].y + erase_path.y;
 
-				erase_path.x = target_pos_sim[0] + erase_path.x;
-				erase_path.y = target_pos_sim[1] + erase_path.y;
+				erase_path.x = target_pos_sim[0] ;
+				erase_path.y = target_pos_sim[1] ;
 			}
 			else
 			{
-				if (!Path.empty())
-				{
 					double start_pointx_sim = jump_path_optimization_copy_sim[0].x;
 					double start_pointy_sim = jump_path_optimization_copy_sim[0].y;
 
 					car_x_sim = start_pointx_sim - jump_path_optimization_copy_sim[1].x  /*+ (double)rand() / (RAND_MAX + 1.0) * 4*/;
-					car_y_sim = jump_path_optimization_copy_sim[1].y - start_pointy_sim  /*+ (double)rand() / (RAND_MAX + 1.0) * 4*/;
-					car_zdir_sim = CPSocket::m_pose_data_2.pose_orientation[2] + CV_PI / 2 /*+ (double)rand() / (RAND_MAX + 1.0) * 6*/;
-				}
-				else
-				{
-					double start_pointx_sim = jump_path_optimization_copy_sim[0].x;
-					double start_pointy_sim = jump_path_optimization_copy_sim[0].y;
-
-					// 				target_pos_sim[0] = jump_path_optimization_copy_sim[1].x;
-					// 				target_pos_sim[1] = jump_path_optimization_copy_sim[1].y;
-
-					car_x_sim = start_pointx_sim - jump_path_optimization_copy_sim[1].x  /*+ (double)rand() / (RAND_MAX + 1.0) * 4*/;
-					car_y_sim = -start_pointy_sim + jump_path_optimization_copy_sim[1].y /*+ (double)rand() / (RAND_MAX + 1.0) * 4*/;
-					car_zdir_sim = CPSocket::m_pose_data_2.pose_orientation[2] + CV_PI / 2 /*+ (double)rand() / (RAND_MAX + 1.0) * 6*/;
-				}
+					car_y_sim = -start_pointy_sim + jump_path_optimization_copy_sim[1].y  /*+ (double)rand() / (RAND_MAX + 1.0) * 4*/;
+					car_zdir_sim = Camera[5] + CV_PI / 2 /*+ 0.148+ (double)rand() / (RAND_MAX + 1.0) * 6*/;   //要更改初始方向角的話在這裡加
 			}
 
 
@@ -1070,6 +1062,12 @@ UINT SHHuangDlg::ThreadFun_TARGET_control(LPVOID lParam)
 				jump_draw++;
 				x_save.push_back(x_here* here_scale + orgin.x);
 				y_save.push_back(700 - (y_here * here_scale + orgin.y));
+
+				app_pos_m_sim
+					<< zdir_here << "  "
+					<< x_here << "  "
+					<< y_here << "  "
+					<< endl;
 
 				draw_car draw_car_temp;
 
@@ -1232,16 +1230,16 @@ UINT SHHuangDlg::ThreadFun_Path_Planning(LPVOID lParam)
 			Sleep(30);
 		}
 
-		if (!Path.empty())
-		{
-			start_point.x = cvRound(IDC_Map_Rect_Map[2] / 2 + Path[Path.size() - 1].x  *initial_scale) + map_move[4];
-			start_point.y = cvRound(IDC_Map_Rect_Map[3] / 2 - Path[Path.size() - 1].y * initial_scale) + map_move[5];
-		}
-		else
-		{
-			start_point.x = cvRound(IDC_Map_Rect_Map[2] / 2) + map_move[4];
-			start_point.y = cvRound(IDC_Map_Rect_Map[3] / 2) + map_move[5];
-		}
+ 		if (!Path.empty())
+ 		{
+ 			start_point.x = cvRound(IDC_Map_Rect_Map[2] / 2 + Path[Path.size() - 1].x  *initial_scale) + map_move[4];
+ 			start_point.y = cvRound(IDC_Map_Rect_Map[3] / 2 - Path[Path.size() - 1].y * initial_scale) + map_move[5];
+ 		}
+ 		else
+ 		{
+			start_point.x = cvRound(IDC_Map_Rect_Map[2] / 2) + map_move[4] /*+ 25*/; //手動移動機器人初始位置的話在這裡加減
+			start_point.y = cvRound(IDC_Map_Rect_Map[3] / 2) + map_move[5] /*+ 50*/;
+ 		}
 
 		choose1 = false;
 		choose2 = true;
@@ -1250,7 +1248,7 @@ UINT SHHuangDlg::ThreadFun_Path_Planning(LPVOID lParam)
 
 		//		end_point.x -= 10; //模擬移動
 
-		sprintf_s(read_name, "20160626_090600/map_20160626_090600.png", photo_conunt);
+		sprintf_s(read_name, "20160626_090600/map_20160626_090600 - 複製 (2).png", photo_conunt);
 		sprintf_s(write_name, "path\\R%d.png", photo_conunt);
 		//		sprintf_s(read_name, "path\\L%d.png", photo_conunt);
 		fstream in_image0(read_name, ios::in);
@@ -3109,8 +3107,8 @@ void SHHuangDlg::trans2Voronoi(vector<vector<bool>> i_sca_image, vector<cv::Poin
 
 void SHHuangDlg::Voronoi_calculate(double i_Data[8000], int x_boundary, int y_boundary, CvPoint2D64f(&o_savepoint1)[3000], CvPoint2D64f(&o_savepoint2)[3000], int &o_line_count)
 {
-	remove("原始VD座標輸出.txt");
-	fstream app_VD_output2("原始VD座標輸出.txt", ios::app);
+//	remove("原始VD座標輸出.txt");
+//	fstream app_VD_output2("原始VD座標輸出.txt", ios::app);
 
 	CWnd* CW_vo = (CWnd *)GetDlgItem(IDC_Voronoi);
 	CDC* pDC = CW_vo->GetWindowDC();
@@ -3143,7 +3141,7 @@ void SHHuangDlg::Voronoi_calculate(double i_Data[8000], int x_boundary, int y_bo
 
 			if (aEdge.ep[0] && aEdge.ep[1])
 			{
-				app_VD_output2 << *x1 << ", " << *y1 << " 到 " << *x2 << ", " << *y2 << ",第 " << line_count2 << endl;
+//				app_VD_output2 << *x1 << ", " << *y1 << " 到 " << *x2 << ", " << *y2 << ",第 " << line_count2 << endl;
 				line_count2++;
 			}
 
@@ -3207,7 +3205,7 @@ void SHHuangDlg::Voronoi_calculate(double i_Data[8000], int x_boundary, int y_bo
 
 	o_line_count = i_line_count;
 
-	app_VD_output2.close();
+//	app_VD_output2.close();
 	ReleaseDC(pDC);
 	delete vor;
 
@@ -3215,8 +3213,8 @@ void SHHuangDlg::Voronoi_calculate(double i_Data[8000], int x_boundary, int y_bo
 
 void SHHuangDlg::Generalized_Voronoi(vector<vector<bool>> i_sca_image, CvPoint2D64f i_savepoint1[3000], CvPoint2D64f i_savepoint2[3000], int i_line_count, int &o_new_input_index, CvPoint2D64f(&o_new_savepoint1)[3000], CvPoint2D64f(&o_new_savepoint2)[3000])
 {
-	remove("廣義VD座標輸出.txt");
-	fstream app_VD_output("廣義VD座標輸出.txt", ios::app);
+//	remove("廣義VD座標輸出.txt");
+//	fstream app_VD_output("廣義VD座標輸出.txt", ios::app);
 
 	int cheak_point = 0, line_distant, new_input_index = 0;
 	CvPoint2D64f cutout_point[2000];
@@ -3271,7 +3269,7 @@ void SHHuangDlg::Generalized_Voronoi(vector<vector<bool>> i_sca_image, CvPoint2D
 			if ((round(o_new_savepoint1[new_input_index].y) < i_sca_image.size() - 1) && (round(o_new_savepoint1[new_input_index].x) < i_sca_image.size() - 1) && (round(o_new_savepoint1[new_input_index].y) > 1 && (round(o_new_savepoint1[new_input_index].x) > 1)))
 				if (i_sca_image[round(o_new_savepoint1[new_input_index].y)][round(o_new_savepoint1[new_input_index].x)] == 0 && i_sca_image[round(o_new_savepoint2[new_input_index].y)][round(o_new_savepoint2[new_input_index].x)] == 0)
 				{
-					app_VD_output << o_new_savepoint1[new_input_index].x * (double)10.0 << ", " << o_new_savepoint1[new_input_index].y * (double)10.0 << " 到 " << o_new_savepoint2[new_input_index].x * (double)10.0 << ", " << o_new_savepoint2[new_input_index].y * (double)10.0 << ", 第 " << new_input_index << endl;
+//					app_VD_output << o_new_savepoint1[new_input_index].x * (double)10.0 << ", " << o_new_savepoint1[new_input_index].y * (double)10.0 << " 到 " << o_new_savepoint2[new_input_index].x * (double)10.0 << ", " << o_new_savepoint2[new_input_index].y * (double)10.0 << ", 第 " << new_input_index << endl;
 					new_input_index++;
 				}
 		}
@@ -3283,7 +3281,7 @@ void SHHuangDlg::Generalized_Voronoi(vector<vector<bool>> i_sca_image, CvPoint2D
 				o_new_savepoint1[new_input_index] = i_savepoint1[cheak_point];
 				o_new_savepoint2[new_input_index] = i_savepoint2[cheak_point];
 
-				app_VD_output << o_new_savepoint1[i].x * (double)10.0 << ", " << o_new_savepoint1[i].y * (double)10.0 << " 到 " << o_new_savepoint2[i].x * (double)10.0 << ", " << o_new_savepoint2[i].y * (double)10.0 << ", 第 " << new_input_index << endl;
+//				app_VD_output << o_new_savepoint1[i].x * (double)10.0 << ", " << o_new_savepoint1[i].y * (double)10.0 << " 到 " << o_new_savepoint2[i].x * (double)10.0 << ", " << o_new_savepoint2[i].y * (double)10.0 << ", 第 " << new_input_index << endl;
 				new_input_index++;
 				continue;
 			}
@@ -3302,7 +3300,7 @@ void SHHuangDlg::Generalized_Voronoi(vector<vector<bool>> i_sca_image, CvPoint2D
 				o_new_savepoint1[new_input_index] = i_savepoint1[cheak_point];
 				o_new_savepoint2[new_input_index] = i_savepoint2[cheak_point];
 
-				app_VD_output << o_new_savepoint1[i].x * (double)10.0 << ", " << o_new_savepoint1[i].y * (double)10.0 << " 到 " << o_new_savepoint2[i].x * (double)10.0 << ", " << o_new_savepoint2[i].y * (double)10.0 << ", 第 " << new_input_index << endl;
+//				app_VD_output << o_new_savepoint1[i].x * (double)10.0 << ", " << o_new_savepoint1[i].y * (double)10.0 << " 到 " << o_new_savepoint2[i].x * (double)10.0 << ", " << o_new_savepoint2[i].y * (double)10.0 << ", 第 " << new_input_index << endl;
 				new_input_index++;
 			}
 		}

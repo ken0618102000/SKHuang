@@ -1,13 +1,14 @@
 clc;clear all;close;
     
-    [x1,y1,angle1,x_cov,y_cov,zdir_cov]=textread('Laser_Data_Laser_ground.txt','%f%f%f%f%f%f','headerlines',0);
-    angle1=angle1+pi/2;
+    [angle1,x1,y1]=textread('control_pos_m_sim.txt','%f%f%f','headerlines',0);
+ %   angle1=angle1+pi/2;
 %     x1=x1*100;
 %     y1=y1*100;
-    
+    y1=y1+1.45;
+    x1 = x1+.1;
    
    figure(1); 
-   halfL = 0.21/2; halfW =0.21/2;     %%%   original robot posture (corner)
+   halfL = 0.41/2; halfW =0.41/2;     %%%   original robot posture (corner)
    cornerR = [halfL -halfL -halfL halfL halfL;
    halfW halfW -halfW -halfW halfW];
    arrowR = [1.5*halfL 0]';  % robot orientation arrow
@@ -19,7 +20,7 @@ clc;clear all;close;
     plot(x2,y2,'r','LineWidth',2);hold on;
 %     plot(x1,y1,'r','LineWidth',1);hold on;
     
-   for i=1:5000:size(x1,1)
+   for i=1:50000:size(x1,1)
        %%if((((x(i+1)-x(i))^2+y(i+1)-y(i))^2) < 6) 
         
         
@@ -38,33 +39,12 @@ clc;clear all;close;
   plot(rotated_cornerR(1,:), rotated_cornerR(2,:),'--black','LineWidth',2.5); hold on;
   plot([x1(i)-0 rotated_arrowR(1)],[y1(i)-0 rotated_arrowR(2)],'--black','LineWidth',1.5); hold on;
   
-title('\fontsize{14} \fontname{Times New Roman} trajectory')
-xlabel('\fontsize{14} \fontname{Times New Roman} m');
-ylabel('\fontsize{16} \fontname{Times New Roman} m');
+title('\fontsize{18} \fontname{Times New Roman} trajectory')
+xlabel('\fontsize{18} \fontname{Times New Roman} m');
+ylabel('\fontsize{18} \fontname{Times New Roman} m');
   
 %axis([-1.5,1.5,-2,1.5]);
 grid on;axis equal;hold on;
-
-figure(2);
-subplot(1,1,1); plot(1:size(x_cov,1),x_cov);hold on;
-title('\fontsize{14} \fontname{Times New Roman} X-Covariance');
-xlabel('\fontsize{14} \fontname{Times New Roman} Sec/20');
-ylabel('\fontsize{14} \fontname{Times New Roman} m');
-axis([0,size(x_cov,1),-inf,inf]);grid on;hold on;
-
-figure(3);
-subplot(1,1,1); plot(1:size(y_cov,1),y_cov);hold on;
-title('\fontsize{14} \fontname{Times New Roman} Y-Covariance');
-xlabel('\fontsize{14} \fontname{Times New Roman} Sec/20');
-ylabel('\fontsize{14} \fontname{Times New Roman} m');
-axis([0,size(y_cov,1),-inf,inf]);grid on;hold on;
-
-figure(4);
-subplot(1,1,1); plot(1:size(zdir_cov,1),zdir_cov);hold on;
-title('\fontsize{14} \fontname{Times New Roman} Z-Rotation-Covariance');
-xlabel('\fontsize{14} \fontname{Times New Roman} Sec/20');
-ylabel('\fontsize{14} \fontname{Times New Roman} m');
-axis([0,size(zdir_cov,1),-inf,inf]);grid on;hold on;
- 
+set(gca,'FontName','Times New Roman','FontSize',18)
 
    

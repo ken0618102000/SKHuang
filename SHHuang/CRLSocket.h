@@ -2,7 +2,7 @@
 #include "afxsock.h"
 #include "../server/include/ControlDataStruct.h"
 
-#include <boost\shared_ptr.hpp>
+#include "E:\boost_1_62_0\boost\shared_ptr.hpp"
 
 #include <vector>
 

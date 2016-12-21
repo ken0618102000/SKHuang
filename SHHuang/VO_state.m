@@ -1,6 +1,6 @@
 clc;clear all;close;
     
-    [rho,theta,phi,alpha,beta,vl,vr,state]=textread('control_output_m3.txt','%f%f%f%f%f%f%f%f',...
+    [rho,theta,phi,alpha,beta,vl,vr,state]=textread('control_output_m.txt','%f%f%f%f%f%f%f%f',...
         'headerlines',0);
     rho = rho/100;
     
